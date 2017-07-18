@@ -5,7 +5,7 @@ services:
     environment:
     - BILLY_MONGO_HOST=database
     - MYSQL_HOST=mysql
-    - DATABASE_URL=postgis://openstates:openstates@postgres/openstates
+    - DATABASE_URL=postgis://pupa:pupa@postgres/opencivicdata
     - NEW_YORK_API_KEY
     - INDIANA_API_KEY
     - PUPA_ARGS
@@ -20,8 +20,9 @@ services:
     ports:
     - "5432:5432"
     environment:
-      - POSTGRES_USER=openstates
-      - POSTGRES_PASSWORD=openstates
+      - POSTGRES_USER=pupa
+      - POSTGRES_PASSWORD=pupa
+      - POSTGRES_DB=opencivicdata
   openstates.org:
     image: openstates/openstates.org
     command: python manage.py runserver 0.0.0.0:8000
@@ -51,3 +52,13 @@ services:
     - .:/opt/openstates/openstates/
     depends_on:
     - mysql
+  dbinit:
+    image: openstates/openstates
+    environment:
+      - DATABASE_URL=postgis://openstates:openstates@postgres/openstates
+    depends_on:
+      - postgres
+    volumes:
+    - .:/opt/openstates/openstates/
+    entrypoint: /opt/openstates/openstates/dbinit.sh
+    #entrypoint: /opt/openstates/venv-pupa/bin/pupa dbinit us
